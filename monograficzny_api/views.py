@@ -36,9 +36,6 @@ def usage_request(request):
                 data_end.calculate_sun_data()
                 sunrise = data_end.sunrise
 
-            print(sunset)
-            print(sunrise)
-
             # Power used = power (kWh) * hours (total seconds between sunset -> sunrise divided by 3600)
             day_power_usage = usageReq.power * (sunrise - sunset).total_seconds() / 3600
 
