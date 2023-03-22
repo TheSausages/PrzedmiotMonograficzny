@@ -1,9 +1,6 @@
-import datetime
 from datetime import timedelta
-import json
-from django.http import HttpResponse
+from django.http import JsonResponse
 from sundata import SunData
-from django.core import serializers
 
 from monograficzny_api.models import UsageRequest, PowerUsage
 
@@ -47,7 +44,7 @@ def usage_request(request):
 
             powers.add_night_power_usage(day_power_usage, sunset, sunrise)
 
-        return HttpResponse(json.dumps(powers.__dict__()))
+        return JsonResponse(powers.__dict__())
 
     return {
         "message": "An error"

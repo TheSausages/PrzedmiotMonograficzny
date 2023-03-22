@@ -1,5 +1,3 @@
-import json
-
 from django.db import models
 from datetime import datetime
 from sundata import Position
@@ -66,9 +64,7 @@ class PowerUsage:
         ))
 
     def __dict__(self):
-        night_powers = [day.__dict__() for day in self.power_each_day]
-
         return {
             'total_power': self.total_power,
-            'power_each_day': night_powers
+            'power_each_day': [day.__dict__() for day in self.power_each_day]
         }
