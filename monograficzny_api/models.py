@@ -1,3 +1,5 @@
+import json
+
 from django.db import models
 from datetime import datetime
 from sundata import Position
@@ -12,6 +14,12 @@ from sundata import Position
 #
 #     class Meta:
 #         managed = False
+
+def obj_dict(obj):
+    if isinstance(obj, datetime):
+        return obj.strftime("%m/%d/%Y'T'%H:%M:%S")
+    else:
+        return obj.__dict_
 
 # DTO for api call
 class UsageRequest:
@@ -32,3 +40,35 @@ class UsageRequest:
         start = datetime.strptime(self.start_date, "%d-%m-%Y").date()
         end = datetime.strptime(self.end_date, "%d-%m-%Y").date()
         return range((end - start).days + 1)
+
+class NightPowerUsage:
+    def __init__(self, power_usage, sunset, sunrise):
+        self.power_usage = power_usage
+        self.sunset = sunset
+        self.sunrise = sunrise
+
+    def __dict__(self):
+        return {
+            'power_usage': self.power_usage,
+            'sunset': self.sunset.strftime("%m/%d/%YT%H:%M:%S"),
+            'sunrise': self.sunrise.strftime("%m/%d/%YT%H:%M:%S")
+        }
+
+class PowerUsage:
+    def __init__(self):
+        self.total_power = 0
+        self.power_each_day = []
+
+    def add_night_power_usage(self, power_usage, sunset, sunrise):
+        self.total_power += self.total_power + power_usage
+        self.power_each_day.append(NightPowerUsage(
+            power_usage, sunset, sunrise
+        ))
+
+    def __dict__(self):
+        night_powers = [day.__dict__() for day in self.power_each_day]
+
+        return {
+            'total_power': self.total_power,
+            'power_each_day': night_powers
+        }

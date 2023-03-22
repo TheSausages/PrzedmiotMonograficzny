@@ -1,10 +1,11 @@
+import datetime
 from datetime import timedelta
-
+import json
 from django.http import HttpResponse
 from sundata import SunData
+from django.core import serializers
 
-from monograficzny_api.models import UsageRequest
-
+from monograficzny_api.models import UsageRequest, PowerUsage
 
 def usage_request(request):
     if request.method == 'GET':
@@ -17,7 +18,7 @@ def usage_request(request):
             request.GET.get('end_date', '22-03-2022')
         )
 
-        power_used = 0
+        powers = PowerUsage()
 
         # Get the position
         position = usageReq.get_position()
@@ -29,18 +30,24 @@ def usage_request(request):
             sunset = data_start.sunset
 
             # End where we want to check usage - sunrise for the next day
-            day_start = usageReq.get_start_date_as_datetime() + timedelta(days=nr_day + 1)
-            data_start = SunData(position, day_start)
-            data_start.calculate_sun_data()
-            sunrise = data_start.sunrise
+            day_end = usageReq.get_start_date_as_datetime() + timedelta(days=nr_day + 1)
+            sunrise = None
+            if day_end == usageReq.end_date:
+                sunrise = usageReq.end_date
+            else:
+                data_end = SunData(position, day_end)
+                data_end.calculate_sun_data()
+                sunrise = data_end.sunrise
 
             print(sunset)
             print(sunrise)
 
             # Power used = power (kWh) * hours (total seconds between sunset -> sunrise divided by 3600)
-            power_used += usageReq.power * (sunrise - sunset).total_seconds() / 3600
+            day_power_usage = usageReq.power * (sunrise - sunset).total_seconds() / 3600
 
-        return HttpResponse(power_used)
+            powers.add_night_power_usage(day_power_usage, sunset, sunrise)
+
+        return HttpResponse(json.dumps(powers.__dict__()))
 
     return {
         "message": "An error"
