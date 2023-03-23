@@ -9,9 +9,9 @@ def usage_request(request):
     if request.method == 'GET':
         # Get object from request
         usageReq = UsageRequest(
-            int(request.GET.get('power', 12)),
-            int(request.GET.get('latitude', 50)),
-            int(request.GET.get('longitude', 50)),
+            float(request.GET.get('power', 12)),
+            float(request.GET.get('latitude', 50)),
+            float(request.GET.get('longitude', 50)),
             request.GET.get('start_date', '10-03-2022'),
             request.GET.get('end_date', '22-03-2022')
         )
@@ -52,9 +52,9 @@ def power_request(request):
     if request.method == 'GET':
         # Get object from request
         powerReq = PowerRequest(
-            int(request.GET.get('power', 100)),
-            int(request.GET.get('latitude', 50)),
-            int(request.GET.get('longitude', 50)),
+            float(request.GET.get('usage', 100)),
+            float(request.GET.get('latitude', 50)),
+            float(request.GET.get('longitude', 50)),
             request.GET.get('start_date', '10-03-2022'),
             request.GET.get('end_date', '22-03-2022')
         )
@@ -81,7 +81,7 @@ def power_request(request):
                 data_end.calculate_sun_data()
                 sunrise = data_end.sunrise
 
-            hours += (sunrise - sunset).total_seconds() / 3600
+            hours += ((sunrise - sunset).total_seconds() / 3600)
 
         return JsonResponse(PowerResponse(powerReq.usage / hours).__dict__())
 

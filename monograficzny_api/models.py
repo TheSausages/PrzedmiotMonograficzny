@@ -58,7 +58,7 @@ class PowerUsageResponse:
         self.power_each_day = []
 
     def add_night_power_usage(self, power_usage, sunset, sunrise):
-        self.total_power += self.total_power + power_usage
+        self.total_power += power_usage
         self.power_each_day.append(SingleNightPowerUsageResponse(
             power_usage, sunset, sunrise
         ))
