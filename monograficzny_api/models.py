@@ -21,12 +21,13 @@ def obj_dict(obj):
 
 # DTO for api call
 class UsageRequest:
-    def __init__(self, power, latitude, longitude, start_date, end_date):
+    def __init__(self, power, latitude, longitude, start_date, end_date, lamp_number):
         self.power = power
         self.latitude = latitude
         self.longitude = longitude
         self.start_date = start_date
         self.end_date = end_date
+        self.lamp_number = lamp_number
 
     def get_position(self):
         return Position(self.latitude, self.longitude)
@@ -57,25 +58,26 @@ class PowerUsageResponse:
         self.total_power = 0
         self.power_each_day = []
 
-    def add_night_power_usage(self, power_usage, sunset, sunrise):
-        self.total_power += power_usage
+    def add_night_power_usage(self, single_night_power_usage, sunset, sunrise):
+        self.total_power += single_night_power_usage
         self.power_each_day.append(SingleNightPowerUsageResponse(
-            power_usage, sunset, sunrise
+            single_night_power_usage, sunset, sunrise
         ))
 
     def __dict__(self):
         return {
             'total_power': self.total_power,
-            'power_each_day': [day.__dict__() for day in self.power_each_day]
+            'power_each_night': [day.__dict__() for day in self.power_each_day]
         }
 
 class PowerRequest:
-    def __init__(self, usage, latitude, longitude, start_date, end_date):
+    def __init__(self, usage, latitude, longitude, start_date, end_date, lamp_number):
         self.usage = usage
         self.latitude = latitude
         self.longitude = longitude
         self.start_date = start_date
         self.end_date = end_date
+        self.lamp_number = lamp_number
 
     def get_position(self):
         return Position(self.latitude, self.longitude)
@@ -89,10 +91,15 @@ class PowerRequest:
         return range((end - start).days + 1)
 
 class PowerResponse:
-    def __init__(self, power):
-        self.power = power
+    def __init__(self):
+        self.usages = []
+
+    def add_single_night_usage(self, single_night_power_usage, sunset, sunrise):
+        self.usages.append(SingleNightPowerUsageResponse(
+            single_night_power_usage, sunset, sunrise
+        ))
 
     def __dict__(self):
         return {
-            'power': self.power
+            'power_each_night': [day.__dict__() for day in self.usages]
         }

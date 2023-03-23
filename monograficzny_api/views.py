@@ -13,7 +13,8 @@ def usage_request(request):
             float(request.GET.get('latitude', 50)),
             float(request.GET.get('longitude', 50)),
             request.GET.get('start_date', '10-03-2022'),
-            request.GET.get('end_date', '22-03-2022')
+            request.GET.get('end_date', '22-03-2022'),
+            int(request.GET.get("lamp_number", 1))
         )
 
         powers = PowerUsageResponse()
@@ -38,7 +39,7 @@ def usage_request(request):
                 sunrise = data_end.sunrise
 
             # Power used = power (kWh) * hours (total seconds between sunset -> sunrise divided by 3600)
-            day_power_usage = usageReq.power * (sunrise - sunset).total_seconds() / 3600
+            day_power_usage = usageReq.lamp_number * usageReq.power * (sunrise - sunset).total_seconds() / 3600
 
             powers.add_night_power_usage(day_power_usage, sunset, sunrise)
 
@@ -56,7 +57,8 @@ def power_request(request):
             float(request.GET.get('latitude', 50)),
             float(request.GET.get('longitude', 50)),
             request.GET.get('start_date', '10-03-2022'),
-            request.GET.get('end_date', '22-03-2022')
+            request.GET.get('end_date', '22-03-2022'),
+            int(request.GET.get("lamp_number", 1))
         )
 
         # Get the position
@@ -83,7 +85,29 @@ def power_request(request):
 
             hours += ((sunrise - sunset).total_seconds() / 3600)
 
-        return JsonResponse(PowerResponse(powerReq.usage / hours).__dict__())
+        single_hour_usage = powerReq.usage / hours
+
+        powerResponse = PowerResponse()
+        for nr_day in powerReq.get_range_dates():
+            # Start where we want to check usage - we check sunset
+            day_start = powerReq.get_start_date_as_datetime() + timedelta(days=nr_day)
+            data_start = SunData(position, day_start)
+            data_start.calculate_sun_data()
+            sunset = data_start.sunset
+
+            # End where we want to check usage - sunrise for the next day
+            day_end = powerReq.get_start_date_as_datetime() + timedelta(days=nr_day + 1)
+            sunrise = None
+            if day_end == powerReq.end_date:
+                sunrise = powerReq.end_date
+            else:
+                data_end = SunData(position, day_end)
+                data_end.calculate_sun_data()
+                sunrise = data_end.sunrise
+
+            powerResponse.add_single_night_usage((sunrise - sunset).total_seconds() / 3600 * single_hour_usage, sunset, sunrise)
+
+        return JsonResponse(powerResponse.__dict__())
 
 
     return {
