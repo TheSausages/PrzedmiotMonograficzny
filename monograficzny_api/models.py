@@ -39,7 +39,7 @@ class UsageRequest:
         end = datetime.strptime(self.end_date, "%d-%m-%Y").date()
         return range((end - start).days + 1)
 
-class NightPowerUsage:
+class SingleNightPowerUsageResponse:
     def __init__(self, power_usage, sunset, sunrise):
         self.power_usage = power_usage
         self.sunset = sunset
@@ -52,14 +52,14 @@ class NightPowerUsage:
             'sunrise': self.sunrise.strftime("%m/%d/%YT%H:%M:%S")
         }
 
-class PowerUsage:
+class PowerUsageResponse:
     def __init__(self):
         self.total_power = 0
         self.power_each_day = []
 
     def add_night_power_usage(self, power_usage, sunset, sunrise):
         self.total_power += self.total_power + power_usage
-        self.power_each_day.append(NightPowerUsage(
+        self.power_each_day.append(SingleNightPowerUsageResponse(
             power_usage, sunset, sunrise
         ))
 
@@ -67,4 +67,32 @@ class PowerUsage:
         return {
             'total_power': self.total_power,
             'power_each_day': [day.__dict__() for day in self.power_each_day]
+        }
+
+class PowerRequest:
+    def __init__(self, usage, latitude, longitude, start_date, end_date):
+        self.usage = usage
+        self.latitude = latitude
+        self.longitude = longitude
+        self.start_date = start_date
+        self.end_date = end_date
+
+    def get_position(self):
+        return Position(self.latitude, self.longitude)
+
+    def get_start_date_as_datetime(self):
+        return datetime.strptime(self.start_date, "%d-%m-%Y")
+
+    def get_range_dates(self):
+        start = datetime.strptime(self.start_date, "%d-%m-%Y").date()
+        end = datetime.strptime(self.end_date, "%d-%m-%Y").date()
+        return range((end - start).days + 1)
+
+class PowerResponse:
+    def __init__(self, power):
+        self.power = power
+
+    def __dict__(self):
+        return {
+            'power': self.power
         }

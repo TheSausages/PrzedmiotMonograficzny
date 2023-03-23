@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.core.serializers.json import Serializer
-from models import UsageRequest, PowerUsage
+from models import UsageRequest, PowerUsageResponse
 
 
 # class UsageRequestSerializer(serializers.ModelSerializer):
