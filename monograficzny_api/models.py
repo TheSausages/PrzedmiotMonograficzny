@@ -40,6 +40,7 @@ class UsageRequest:
         end = datetime.strptime(self.end_date, "%d-%m-%Y").date()
         return range((end - start).days + 1)
 
+
 class SingleNightPowerUsageResponse:
     def __init__(self, power_usage, sunset, sunrise):
         self.power_usage = power_usage
@@ -52,6 +53,10 @@ class SingleNightPowerUsageResponse:
             'sunset': self.sunset.strftime("%m/%d/%YT%H:%M:%S"),
             'sunrise': self.sunrise.strftime("%m/%d/%YT%H:%M:%S")
         }
+
+    def multiply_by_single_hour_usage(self, single_hour_usage):
+        self.power_usage = self.power_usage * single_hour_usage
+
 
 class PowerUsageResponse:
     def __init__(self):
@@ -69,6 +74,7 @@ class PowerUsageResponse:
             'total_power': self.total_power,
             'power_each_night': [day.__dict__() for day in self.power_each_day]
         }
+
 
 class PowerRequest:
     def __init__(self, usage, latitude, longitude, start_date, end_date, lamp_number):
@@ -90,14 +96,19 @@ class PowerRequest:
         end = datetime.strptime(self.end_date, "%d-%m-%Y").date()
         return range((end - start).days + 1)
 
+
 class PowerResponse:
     def __init__(self):
         self.usages = []
 
-    def add_single_night_usage(self, single_night_power_usage, sunset, sunrise):
+    def add_single_night_usage(self, number_of_hour, sunset, sunrise):
         self.usages.append(SingleNightPowerUsageResponse(
-            single_night_power_usage, sunset, sunrise
+            number_of_hour, sunset, sunrise
         ))
+
+    def multiply_by_single_hour_usage_all_elements(self, single_hour_usage):
+        for element in self.usages:
+            element.multiply_by_single_hour_usage(single_hour_usage)
 
     def __dict__(self):
         return {
