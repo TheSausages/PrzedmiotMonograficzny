@@ -1,3 +1,5 @@
+from corsheaders.defaults import default_headers
+
 """
 Django settings for monograficzny project.
 
@@ -25,7 +27,23 @@ SECRET_KEY = 'django-insecure-t__=1za&wf85@jkegezm%%8t*+gy6(3=4((vu*0+rgjx-!#9v5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1"
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000/*",
+    "http://localhost:3000",
+    "/localhost:3000/*",
+    "localhost:3000"
+]
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+# DEBUG=True
+#
+# CORS_ORIGIN_ALLOW_ALL = DEBUG
 
 
 # Application definition
@@ -41,7 +59,12 @@ INSTALLED_APPS = [
     'monograficzny_api'
 ]
 
+CORS_ALLOW_HEADERS = default_headers + (
+    'Access-Control-Allow-Origin',
+)
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

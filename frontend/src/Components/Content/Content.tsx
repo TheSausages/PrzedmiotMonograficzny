@@ -15,7 +15,11 @@ const Content = (props: ContentProps) => {
         <main>
             <Routes>
                 <Route path={measurement_path} element={<Measurement/>} />
-                <Route path={report_path} element={<Report/>} />
+                <Route path={report_path} element={<Report
+                    power={20} usage={5176.666666666667} latitude={51.1052862455}
+                    longitude={17.055921443} start_date={new Date(2023,2, 1)}
+                    nr_lamps={2} end_date={new Date(2023,2,31)}
+                />} />
                 <Route path={home_path} element={<Home/>} />
             </Routes>
         </main>
