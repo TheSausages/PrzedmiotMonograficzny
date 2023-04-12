@@ -1,6 +1,6 @@
 from datetime import timedelta
 from django.http import JsonResponse
-from sundata import SunData, LightPeriod
+from sundata import SunData
 
 from monograficzny_api.models import UsageRequest, PowerUsageResponse, PowerRequest, PowerResponse
 
@@ -44,7 +44,7 @@ def usage_request(request):
                 sunrise = data_end.sunrise
                 saved_sunset = data_end.sunset
 
-            # Power used = power (kWh) * hours (total seconds between sunset -> sunrise divided by 3600)
+            # Power used = power (kW) * hours (total seconds between sunset -> sunrise divided by 3600)
             day_power_usage = usageReq.lamp_number * usageReq.power * (sunrise - sunset).total_seconds() / 3600
 
             powers.add_night_power_usage(day_power_usage, sunset, sunrise)
