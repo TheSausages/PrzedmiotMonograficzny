@@ -38,7 +38,7 @@ class UsageRequest:
     def get_range_dates(self):
         start = datetime.strptime(self.start_date, "%d-%m-%Y").date()
         end = datetime.strptime(self.end_date, "%d-%m-%Y").date()
-        return range((end - start).days + 1)
+        return range((end - start).days)
 
 
 class SingleNightPowerUsageResponse:

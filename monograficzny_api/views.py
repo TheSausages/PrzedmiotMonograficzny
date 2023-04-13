@@ -26,7 +26,7 @@ def usage_request(request):
             # Start where we want to check usage - we check sunset
             sunset = 0
             if saved_sunset == 0:
-                day_start = usageReq.get_start_date_as_datetime() + timedelta(days=nr_day, hours=1)
+                day_start = usageReq.get_start_date_as_datetime() + timedelta(days=nr_day, hours=4)
                 data_start = SunData(position, day_start)
                 data_start.calculate_sun_data()
                 sunset = data_start.sunset
@@ -34,7 +34,7 @@ def usage_request(request):
                 sunset = saved_sunset
 
             # End where we want to check usage - sunrise for the next day
-            day_end = usageReq.get_start_date_as_datetime() + timedelta(days=nr_day + 1, hours=1)
+            day_end = usageReq.get_start_date_as_datetime() + timedelta(days=nr_day + 1, hours=4)
             sunrise = None
             if day_end == usageReq.end_date:
                 sunrise = usageReq.end_date
@@ -78,7 +78,7 @@ def power_request(request):
             # Start where we want to check usage - we check sunset
             sunset = 0
             if saved_sunset == 0:
-                day_start = powerReq.get_start_date_as_datetime() + timedelta(days=nr_day, hours=1)
+                day_start = powerReq.get_start_date_as_datetime() + timedelta(days=nr_day, hours=4)
                 data_start = SunData(position, day_start)
                 data_start.calculate_sun_data()
                 sunset = data_start.sunset
@@ -86,7 +86,7 @@ def power_request(request):
                 sunset = saved_sunset
 
             # End where we want to check usage - sunrise for the next day
-            day_end = powerReq.get_start_date_as_datetime() + timedelta(days=nr_day + 1, hours=1)
+            day_end = powerReq.get_start_date_as_datetime() + timedelta(days=nr_day + 1, hours=4)
             sunrise = None
             if day_end == powerReq.end_date:
                 sunrise = powerReq.end_date
