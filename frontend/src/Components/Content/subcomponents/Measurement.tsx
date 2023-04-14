@@ -1,5 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect }  from 'react';
 import Radar from 'radar-sdk-js';
+
+import Map, { Marker } from "react-map-gl";
+import './Measurement.css';
+import "mapbox-gl/dist/mapbox-gl.css";
+
+const MAPBOX_TOKEN = "pk.eyJ1IjoicG9saXRlY2huaXg5OCIsImEiOiJjbGZ4cnMxNmowdHgxM3FvM2NodndtaHdiIn0.FwaEG3xKV59iMN9zgW-B7A"
 
 export interface MeasurementProps
 {
@@ -7,91 +13,43 @@ export interface MeasurementProps
 }
 
 const Measurement = (props: MeasurementProps) => {
-    const publishableKey = "prj_test_pk_53339be127338176200d5ee01140449ca09219b4";
-
-  // Radar.initialize(publishableKey);
-  Radar.initialize(publishableKey, {
-    cacheLocationMinutes: 30
-  });
-
-  Radar.trackOnce(function(err: any, result: any) {
-    if (!err) {
-      // do something with result.location, result.events, result.user
-      
-      // ZWRACA BIERZACA LOKALIZACJE I ŚLE DO SERWERA...?
-      console.log(result);
-    }
-
-//     Radar.getLocation(function(err, result) {
-//     if (!err) {
-//       // do something with result.location
-      
-//       // ZWRACA BIERZACA LOKALIZACJE
-//       console.log(result);
-//     }
-//   });
-
-//   // 20 jay st brooklyn ny
-//   Radar.geocode({query: 'sołtysia 23c katowice'}, function(err, result) {
-//     console.log('geocode adress')
-//     if (!err) {
-//       // do something with result.addresses
-
-//       console.log(result);
-//     } else {
-//       console.log(err);
-//     }
-//   });
-
-//   Radar.reverseGeocode({
-//     latitude: 40.783826,
-//     longitude: -73.975363
-//   }, function(err, result) {
-//     console.log('reverse geocode latitude and longitude')
-//     if (!err) {
-//       // do something with result.addresses
-
-//       console.log(result);
-//     } else {
-//       console.log(err);
-//     }
-//   });
-
-//   Radar.ipGeocode(function(err, result) {
-//     console.log('reverse geocode ip')
-//     if (!err) {
-//       // do something with result.address
-
-//       console.log(result);
-//     } else {
-//       console.log(err);
-//     }
-//   });
-
-//   Radar.autocomplete({
-//     query: 'krakow',
-//     near: {
-//       latitude: 40.783826,
-//       longitude: -73.975363
-//     },
-//     limit: 10
-//   }, function(err, result) {
-//     console.log('autocomplete adress')
-//     if (!err) {
-//       // do something with result.addresses
-
-//       console.log(result);
-//     } else {
-//       console.log(err);
-//     }
-//   });
-  });
+    const [viewport, setViewport] = useState({
+        latitude: 0,
+        longitude: 0,
+        zoom: 1,
+        transitionDuration: 100,
+      });
+    useEffect(() => {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setViewport({
+          ...viewport,
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          zoom: 3.5,
+        });
+      });
+    });
 
     return (
-        <div>
-            Measurement
+        <div className="outerWrapper">
+          {viewport.latitude && viewport.longitude && (
+            <div className="myMapWrapper">
+              {/* <h5>Your Location:</h5> */}
+              <Map
+                mapboxAccessToken={MAPBOX_TOKEN}
+                initialViewState={viewport}
+                mapStyle="mapbox://styles/mapbox/streets-v11"
+                // class="myMap"
+              >
+                <Marker
+                  longitude={viewport.longitude}
+                  latitude={viewport.latitude}
+                />
+              </Map>
+            </div>
+          )}
         </div>
-    )
+      );
 }
 
 export default Measurement;
