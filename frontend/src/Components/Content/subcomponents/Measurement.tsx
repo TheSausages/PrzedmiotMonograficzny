@@ -32,7 +32,7 @@ export interface MeasurementProps
 }
 
 const Measurement = (props: MeasurementProps) => {
-    const [inputType, setinputType] = React.useState('address');
+    const [inputTypeAdress, setInputType] = React.useState(true);
     const [viewport, setViewport] = useState({
         latitude: 0,
         longitude: 0,
@@ -54,7 +54,7 @@ const Measurement = (props: MeasurementProps) => {
       event: React.MouseEvent<HTMLElement>,
       newInputType: string,
     ) => {
-        setinputType(newInputType);
+        setInputType(!inputTypeAdress);
     };
 
     return (
@@ -78,7 +78,7 @@ const Measurement = (props: MeasurementProps) => {
                         </Typography>
                         <ToggleButtonGroup
                             color="primary"
-                            value={inputType}
+                            value={inputTypeAdress ? "address" : "coordinates"}
                             exclusive
                             onChange={handleLocationInputChange}
                             fullWidth
@@ -90,9 +90,24 @@ const Measurement = (props: MeasurementProps) => {
                                 Koordynaty <MyLocationIcon />
                             </ToggleButton>
                         </ToggleButtonGroup>
-                        <TextField id="addres" label="Adres" variant="outlined" />
-                        <TextField id="longitude" label="Długość geograficzna" variant="outlined" />
-                        <TextField id="latitude" label="Szerokość geograficzna" variant="outlined" />
+                        <TextField
+                            id="addres"
+                            label="Adres"
+                            variant="outlined"
+                            disabled={!inputTypeAdress}
+                        />
+                        <TextField
+                            id="longitude"
+                            label="Długość geograficzna"
+                            variant="outlined"
+                            disabled={inputTypeAdress}
+                        />
+                        <TextField
+                            id="latitude"
+                            label="Szerokość geograficzna"
+                            variant="outlined"
+                            disabled={inputTypeAdress}
+                        />
                         <Typography variant="h5" color="text.secondary" component="p">
                             Bierząca wybrana lokalizacja
                         </Typography>
@@ -129,9 +144,31 @@ const Measurement = (props: MeasurementProps) => {
                         <Typography variant="h5" color="text.secondary" component="p">
                             III. Dane techniczne
                         </Typography>
-                        <TextField id="nrOfLamps" label="Ilość lamp w instalacji" variant="outlined" />
-                        <TextField id="sinleLampPower" label="Moc pojednyńczej lampy" variant="outlined" />
-                        <TextField id="observedPowerUsage" label="Zaobserwowane rzeczywiste zużycie danych w danym okresie" variant="outlined" />
+                        <TextField
+                            id="nrOfLamps"
+                            label="Ilość lamp w instalacji"
+                            variant="outlined"
+                            type="number"
+                            InputLabelProps={{ shrink: true }}
+                        />
+                        <TextField
+                            id="sinleLampPower"
+                            label="Moc pojednyńczej lampy"
+                            variant="outlined"
+                            type="number"
+                        />
+
+                        {/* const [name, setName] = React.useState('Cat in the Hat');                        <TextField */}
+                        <TextField
+                            id="observedPowerUsage"
+                            label="Zaobserwowane rzeczywiste zużycie danych w danym okresie"
+                            variant="outlined"
+                            type="number"
+                            // value={name}
+                            // onChange={(event) => {
+                            //     setName(event.target.value)
+                            // }}
+                        />
 
                         <Button variant="contained" endIcon={<SendIcon />}>
                             Przeprowadź analizę
