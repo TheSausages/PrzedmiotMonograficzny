@@ -19,10 +19,11 @@ import MapIcon from '@mui/icons-material/Map';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import { DatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import Button from '@mui/material/Button';
 import SendIcon from '@mui/icons-material/Send';
+import { useNavigate } from "react-router-dom";
 
 const MAPBOX_TOKEN = "pk.eyJ1IjoicG9saXRlY2huaXg5OCIsImEiOiJjbGZ4cnMxNmowdHgxM3FvM2NodndtaHdiIn0.FwaEG3xKV59iMN9zgW-B7A"
 const RADAR_PUBLISHABLE_KEY = "prj_test_pk_53339be127338176200d5ee01140449ca09219b4";
@@ -33,33 +34,48 @@ export interface MeasurementProps
 }
 
 const Measurement = (props: MeasurementProps) => {
+    let navigate = useNavigate()
+
     // form
     const [inputs, setInputs] = useState({
         address: '',
         longitude: 0,
         latitude: 0,
-        start: null,
-        end: null,
-        nrOfLamps: null,
-        singleLampPower: null,
-        observedPowerUsage: null
+        start: new Date(),
+        end: new Date(),
+        nrOfLamps: 0,
+        singleLampPower: 0,
+        observedPowerUsage: 0
     });
 
+    const startCalc = (event: any) => {
+        navigate('/report', {
+            state: {
+                power: Number(inputs.singleLampPower),
+                usage: Number(inputs.observedPowerUsage),
+                latitude: inputs.latitude,
+                longitude: inputs.longitude,
+                nr_lamps: Number(inputs.nrOfLamps),
+                end_date: inputs.end,
+                start_date: inputs.start
+            }
+        })
+    }
+
     const handleChange = (event: any) => {
+        event.preventDefault();
+
         const name = event.target.name;
         const value = event.target.value;
         setInputs(values => ({...values, [name]: value}))
       }
 
-    const handleStartDateChange = (date: any, event: any) => {
-        //date is a complex object, $d contains Date in format: Wed Feb 04 1998 21:51:31 GMT+0100 (czas środkowoeuropejski standardowy)
-        let value = date.$d.toLocaleDateString()
-        setInputs(values => ({...values, 'start': value}))
+    const handleStartDateChange = (date: any) => {
+        setInputs(values => ({...values, start: date}))
     };
 
     const handleEndDateChange = (date: any) => {
-        let value = date.$d.toLocaleDateString()
-        setInputs(values => ({...values, 'end': value}))
+        setInputs(values => ({...values, end: date}))
     };
 
     // adress input
@@ -82,15 +98,12 @@ const Measurement = (props: MeasurementProps) => {
     //compute initial location and adress
     Radar.initialize(RADAR_PUBLISHABLE_KEY);
 
-    const geocode = (address: string) => {}
-
     const reverseGeocode = (latitude: number, longitude: number) => {
         Radar.reverseGeocode({
             latitude: latitude,
             longitude: longitude
         }, function(err: any, result: any) {
             if (!err) {
-                console.log(result)
                 setInputs({...inputs, 'address': result.addresses[0].formattedAddress});
             } else {
                 console.log(err);
@@ -129,7 +142,7 @@ const Measurement = (props: MeasurementProps) => {
               longitude: pos.coords.longitude
           });
         });
-    });
+    }, [inputs.longitude, inputs.latitude]);
 
     return (
         <div>
@@ -220,10 +233,9 @@ const Measurement = (props: MeasurementProps) => {
                         <Typography variant="h5" color="text.secondary" component="p">
                             II. Okres pomiaru
                         </Typography>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
                             <DatePicker
                                 label="Początek pomiaru"
-                                // format="DD/MM/YYYY"
                                 value={inputs.start}
                                 onChange={handleStartDateChange}
                             />
@@ -268,14 +280,11 @@ const Measurement = (props: MeasurementProps) => {
                             InputLabelProps={{ shrink: true }}
                             value={inputs.observedPowerUsage}
                             onChange={handleChange}
-                            // onChange={(event) => {
-                            //     setName(event.target.value)
-                            // }}
                         />
 
                         <Button
                             variant="contained"
-                            onClick={(e) => {console.log(inputs)}}
+                            onClick={(e) => {startCalc(e)}}
                             endIcon={<SendIcon />}
                         >
                             Przeprowadź analizę

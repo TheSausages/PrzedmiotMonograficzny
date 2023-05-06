@@ -16,6 +16,7 @@ import {
     TablePagination,
     TableRow
 } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
 const ReportContainer = styled('div')({
     marginInline: '100px',
@@ -47,11 +48,20 @@ function formatDate(date: Date): string {
 
 const backendUrl = 'http://127.0.0.1:8000/monograficzny'
 function makeRequest(endpoint: string, params: ReportProps): string {
-    if (endpoint === 'usage') {
-        return `${backendUrl}/${endpoint}?power=${params.power}&latitude=${params.latitude}&longitude=${params.longitude}&start_date=${formatDate(params.start_date)}&end_date=${formatDate(params.end_date)}&lamp_number=${params.nr_lamps}`
-    }
+    const searchParams = new URLSearchParams();
+    searchParams.append("latitude", params.latitude.toString());
+    searchParams.append("longitude", params.longitude.toString());
+    searchParams.append("start_date", formatDate(params.start_date));
+    searchParams.append("end_date", formatDate(params.end_date));
+    searchParams.append("lamp_number", params.nr_lamps.toString());
 
-    return `${backendUrl}/${endpoint}?usage=${params.usage}&latitude=${params.latitude}&longitude=${params.longitude}&start_date=${formatDate(params.start_date)}&end_date=${formatDate(params.end_date)}&lamp_number=${params.nr_lamps}`
+    if (endpoint === 'usage') {
+        searchParams.append("power", params.power.toString());
+        return `${backendUrl}/${endpoint}?${searchParams.toString()}`
+    }
+    searchParams.append("usage", params.usage.toString());
+
+    return `${backendUrl}/${endpoint}?${searchParams.toString()}`
 }
 
 function mapToChartObject(usage: PowerUsageResponse, power: PowerResponse): ChartObject[] {
@@ -74,11 +84,14 @@ function mapToChartObject(usage: PowerUsageResponse, power: PowerResponse): Char
     return arr;
 }
 
-const Report = (props: ReportProps) => {
+const Report = () => {
+
     const [powerUsage, setPowerUsage] = useState<PowerUsageResponse | undefined>(undefined)
     const [power, setPower] = useState<PowerResponse | undefined>(undefined)
     const [page, setPage] = useState<number>(0)
     const [perRow, setPerRow] = useState<number>(10)
+
+    const props = useLocation().state as ReportProps
 
     useEffect(() => {
         Promise.all([
