@@ -228,26 +228,24 @@ const Measurement = (props: MeasurementProps) => {
                         </Typography>
 
                         {/* ------------------- MAPA ----------------------- */}
-                        <Fade in={true} timeout={1000}>
-                            <div className="outerWrapper">
-                                {inputs.latitude && inputs.longitude && (
-                                    <div className="myMapWrapper">
-                                        <Map
-                                            ref={mapRef}
-                                            mapboxAccessToken={MAPBOX_TOKEN}
-                                            initialViewState={inputs}
-                                            mapStyle="mapbox://styles/mapbox/streets-v11"
-                                            // class="myMap"
-                                        >
-                                            <Marker
-                                                longitude={inputs.longitude}
-                                                latitude={inputs.latitude}
-                                            />
-                                        </Map>
-                                    </div>
-                                )}
-                            </div>
-                        </Fade>
+                        <div className="outerWrapper">
+                            {inputs.latitude && inputs.longitude && (
+                                <div className="myMapWrapper">
+                                    <Map
+                                        ref={mapRef}
+                                        mapboxAccessToken={MAPBOX_TOKEN}
+                                        initialViewState={inputs}
+                                        mapStyle="mapbox://styles/mapbox/streets-v11"
+                                        // class="myMap"
+                                    >
+                                        <Marker
+                                            longitude={inputs.longitude}
+                                            latitude={inputs.latitude}
+                                        />
+                                    </Map>
+                                </div>
+                            )}
+                        </div>
                     </Stack>
                 </Grid>
                 <Grid item xs={6}>
