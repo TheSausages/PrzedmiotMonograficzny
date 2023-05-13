@@ -1,7 +1,7 @@
-import React, { useState, useEffect }  from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import Radar from 'radar-sdk-js';
 
-import Map, { Marker } from "react-map-gl";
+import Map, {MapRef, Marker} from "react-map-gl";
 import './Measurement.css';
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -11,7 +11,7 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
 import Grid from '@mui/material/Grid';
-import { Typography } from '@mui/material';
+import {Fade, Typography} from '@mui/material';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
@@ -34,18 +34,21 @@ export interface MeasurementProps
 }
 
 const Measurement = (props: MeasurementProps) => {
-    let navigate = useNavigate()
+    let navigate = useNavigate();
+    const mapRef = useRef<MapRef | null>(null);
 
     // form
     const [inputs, setInputs] = useState({
         address: '',
-        longitude: 0,
-        latitude: 0,
+        longitude: 50,
+        latitude: 50,
         start: new Date(),
         end: new Date(),
         nrOfLamps: 0,
         singleLampPower: 0,
-        observedPowerUsage: 0
+        observedPowerUsage: 0,
+        zoom: 6.5,
+        transitionDuration: 100,
     });
 
     const startCalc = (event: any) => {
@@ -70,6 +73,27 @@ const Measurement = (props: MeasurementProps) => {
         setInputs(values => ({...values, [name]: value}))
       }
 
+    const handleAddressChange = (event: any) => {
+        event.preventDefault();
+
+        const newAddress = event.target.value;
+
+        Radar.geocode({
+            query: newAddress
+        }, function(err: any, result: any) {
+            if (!err) {
+                setInputs(values => ({
+                    ...values,
+                    address: newAddress,
+                    latitude: result.addresses[0].latitude,
+                    longitude: result.addresses[0].longitude
+                }))
+            } else {
+                console.log(err);
+            }
+        });
+    }
+
     const handleStartDateChange = (date: any) => {
         setInputs(values => ({...values, start: date}))
     };
@@ -87,66 +111,56 @@ const Measurement = (props: MeasurementProps) => {
           setInputType(!inputTypeAdress);
       };
 
-    // initial map parameters
-    const [viewport, setViewport] = useState({
-        latitude: 0,
-        longitude: 0,
-        zoom: 1,
-        transitionDuration: 100,
-      });
-
     //compute initial location and adress
     Radar.initialize(RADAR_PUBLISHABLE_KEY);
 
-    const reverseGeocode = (latitude: number, longitude: number) => {
+    //get initial location
+    useEffect(() => {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            console.log('Get initial location and address')
+            Radar.reverseGeocode({
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude
+            }, function (err: any, result: any) {
+                if (!err) {
+                    setInputs(prevState => ({
+                        ...prevState,
+                        address: result.addresses[0].formattedAddress,
+                        latitude: pos.coords.latitude,
+                        longitude: pos.coords.longitude
+                    }));
+                } else {
+                    console.error(err)
+                }
+            });
+        });
+    }, []);
+
+    // When inputing coordinates, update map and adress
+    useEffect(() => {
         Radar.reverseGeocode({
-            latitude: latitude,
-            longitude: longitude
+            latitude: inputs.latitude,
+            longitude: inputs.longitude
         }, function(err: any, result: any) {
             if (!err) {
-                setInputs({...inputs, 'address': result.addresses[0].formattedAddress});
+                setInputs(prevState => ({
+                    ...prevState,
+                    address: result.addresses[0].formattedAddress
+                }));
             } else {
                 console.log(err);
             }
-        });       
-    }
-
-    //get initial location
-
-    useEffect(() => {
-        Radar.trackOnce(function(err: any, result: any) {
-            console.log('Get initial location and adress')
-            if (!err) {
-                console.log(result);
-                reverseGeocode(result.location.latitude, result.location.longitude);
-            } else {
-                console.error(err);
-            }
         });
-    }, []); //HOW TO PROPERLY CALL IT ONCE???
 
-
-    // get initial map
-    useEffect(() => {
-        navigator.geolocation.getCurrentPosition((pos) => {
-          setViewport({
-            ...viewport,
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            zoom: 3.5,
-          });
-  
-          setInputs({
-              ...inputs,
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude
-          });
-        });
-    }, [inputs.longitude, inputs.latitude]);
+        mapRef.current?.flyTo({
+            center: [inputs.longitude, inputs.latitude],
+            duration: 2000
+        })
+    }, [inputs.longitude, inputs.latitude])
 
     return (
         <div>
-            <Grid container spacing={2}>
+            <Grid container spacing={2} padding={5}>
                 <Grid item xs={12}>
                 <Typography
                 component="h1"
@@ -184,6 +198,11 @@ const Measurement = (props: MeasurementProps) => {
                             variant="outlined"
                             disabled={!inputTypeAdress}
                             value={inputs.address}
+                            onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                    handleAddressChange(e)
+                                }
+                            }}
                             onChange={handleChange}
                         />
                         <TextField
@@ -209,23 +228,26 @@ const Measurement = (props: MeasurementProps) => {
                         </Typography>
 
                         {/* ------------------- MAPA ----------------------- */}
-                        <div className="outerWrapper">
-                        {inputs.latitude && inputs.longitude && (
-                            <div className="myMapWrapper">
-                                <Map
-                                    mapboxAccessToken={MAPBOX_TOKEN}
-                                    initialViewState={viewport}
-                                    mapStyle="mapbox://styles/mapbox/streets-v11"
-                                    // class="myMap"
-                                >
-                                    <Marker
-                                    longitude={inputs.longitude}
-                                    latitude={inputs.latitude}
-                                    />
-                                </Map>
+                        <Fade in={true} timeout={1000}>
+                            <div className="outerWrapper">
+                                {inputs.latitude && inputs.longitude && (
+                                    <div className="myMapWrapper">
+                                        <Map
+                                            ref={mapRef}
+                                            mapboxAccessToken={MAPBOX_TOKEN}
+                                            initialViewState={inputs}
+                                            mapStyle="mapbox://styles/mapbox/streets-v11"
+                                            // class="myMap"
+                                        >
+                                            <Marker
+                                                longitude={inputs.longitude}
+                                                latitude={inputs.latitude}
+                                            />
+                                        </Map>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                        </div>
+                        </Fade>
                     </Stack>
                 </Grid>
                 <Grid item xs={6}>

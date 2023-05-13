@@ -25,13 +25,13 @@ const ReportContainer = styled('div')({
 
 export interface ReportProps
 {
-    power: number,
-    usage: number,
-    nr_lamps: number,
-    longitude: number,
-    latitude: number,
-    start_date: Date,
-    end_date: Date
+    power?: number,
+    usage?: number,
+    nr_lamps?: number,
+    longitude?: number,
+    latitude?: number,
+    start_date?: Date,
+    end_date?: Date
 }
 
 interface ChartObject {
@@ -49,17 +49,17 @@ function formatDate(date: Date): string {
 const backendUrl = 'http://127.0.0.1:8000/monograficzny'
 function makeRequest(endpoint: string, params: ReportProps): string {
     const searchParams = new URLSearchParams();
-    searchParams.append("latitude", params.latitude.toString());
-    searchParams.append("longitude", params.longitude.toString());
-    searchParams.append("start_date", formatDate(params.start_date));
-    searchParams.append("end_date", formatDate(params.end_date));
-    searchParams.append("lamp_number", params.nr_lamps.toString());
+    searchParams.append("latitude", params.latitude!.toString());
+    searchParams.append("longitude", params.longitude!.toString());
+    searchParams.append("start_date", formatDate(params.start_date!));
+    searchParams.append("end_date", formatDate(params.end_date!));
+    searchParams.append("lamp_number", params.nr_lamps!.toString());
 
     if (endpoint === 'usage') {
-        searchParams.append("power", params.power.toString());
+        searchParams.append("power", params.power!.toString());
         return `${backendUrl}/${endpoint}?${searchParams.toString()}`
     }
-    searchParams.append("usage", params.usage.toString());
+    searchParams.append("usage", params.usage!.toString());
 
     return `${backendUrl}/${endpoint}?${searchParams.toString()}`
 }
@@ -94,16 +94,25 @@ const Report = () => {
     const props = useLocation().state as ReportProps
 
     useEffect(() => {
-        Promise.all([
-            fetch(makeRequest('usage', props)),
-            fetch(makeRequest('power', props))
-        ])
-            .then(([usage, power]) => Promise.all([usage.json(), power.json()]))
-            .then(([usage, power]) => {
-                setPowerUsage(usage)
-                setPower(power)
-            })
+        if (props !== null) {
+            Promise.all([
+                fetch(makeRequest('usage', props)),
+                fetch(makeRequest('power', props))
+            ])
+                .then(([usage, power]) => Promise.all([usage.json(), power.json()]))
+                .then(([usage, power]) => {
+                    setPowerUsage(usage)
+                    setPower(power)
+                })
+        }
     }, [props])
+
+    if (!props) {
+        console.log("in")
+        return <div>
+            No data passed - No calculation possible!
+        </div>
+    }
 
     if (!power || !powerUsage) {
         return (
@@ -115,6 +124,8 @@ const Report = () => {
             </Fade>
         )
     }
+
+    console.log(props)
 
     const mappedData = mapToChartObject(powerUsage, power)
 
@@ -145,7 +156,7 @@ const Report = () => {
                                 <div>Basic Information</div>
                             </Box>
                             <div>Total Predicted: {powerUsage.total_power.toFixed(2)}</div>
-                            <div>Total Used: {props.usage.toFixed(2)}</div>
+                            <div>Total Used: {props.usage!.toFixed(2)}</div>
                         </Box>
                     </Grid>
                 </Fade>
