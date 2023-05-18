@@ -14,7 +14,7 @@ const Home = (props: HomeProps) => {
 
     return (
         <Box sx={{marginTop: '50px'}}>
-            <TipsAndUpdatesTwoToneIcon fontSize='large' sx={{marginTop: '70px', marginBottom:'70px', transform: 'scale(5)'}}/>
+            <TipsAndUpdatesTwoToneIcon fontSize='large' sx={{paddingInlineStart:'0.45rem', marginTop: '70px', marginBottom:'70px', transform: 'scale(5)'}}/>
             <h2>Aplikacja do obliczania i prognozowania zużycia energii przez oświetlenie uliczne</h2>
             <Button variant="outlined" onClick={() => navigate("/measurement")}>Rozpocznij obliczenia</Button>
         </Box>
