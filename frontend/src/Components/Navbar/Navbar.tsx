@@ -24,7 +24,6 @@ const Navbar = (props: NavbarProps) => {
                 <div>
                     <Button color="inherit" component={NavLink} to={home_path}>Home</Button>
                     <Button color="inherit" component={NavLink} to={measurement_path}>Pomiar</Button>
-                    <Button color="inherit" component={NavLink} to={report_path}>Podsumowanie</Button>
                 </div>
             </StyledDiv>
         </AppBar>

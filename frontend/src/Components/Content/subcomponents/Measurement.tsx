@@ -228,9 +228,9 @@ const Measurement = (props: MeasurementProps) => {
                         </Typography>
 
                         {/* ------------------- MAPA ----------------------- */}
-                        <div className="outerWrapper">
+                        <div className="outerWrapper" style={{margin: 'auto'}}>
                             {inputs.latitude && inputs.longitude && (
-                                <div className="myMapWrapper">
+                            <div className="myMapWrapper">
                                     <Map
                                         ref={mapRef}
                                         mapboxAccessToken={MAPBOX_TOKEN}
