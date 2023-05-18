@@ -130,7 +130,7 @@ const Report = () => {
     const mappedData = mapToChartObject(powerUsage, power)
 
     return (
-        <ReportContainer>
+        <ReportContainer sx={{marginBottom: '30px'}}>
             <Grid container spacing={3}>
                 {/* First Row */}
                 <Fade in={true} timeout={1000}>
@@ -142,8 +142,8 @@ const Report = () => {
                                 <Tooltip />
                                 <Legend />
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <Line name="Predicted Values" type="monotone" dataKey="predictedValue" stroke="#8884d8" />
-                                <Line name="Actual Values" type="monotone" dataKey="realValue" stroke="#82ca9d" />
+                                <Line name="Przewidywana wartość [kWh]" type="monotone" dataKey="predictedValue" stroke="#8884d8" />
+                                <Line name="Rzeczywista wartość [kWh]" type="monotone" dataKey="realValue" stroke="#82ca9d" />
                             </LineChart>
                         </ResponsiveContainer>
                     </Grid>
@@ -153,10 +153,10 @@ const Report = () => {
                     <Grid item xs={3} margin={"auto"}>
                         <Box style={{ textAlign: 'left' }}>
                             <Box style={{ borderBottom: 'solid black 1px', width: 'fit-content', marginBottom: '7px' }}>
-                                <div>Basic Information</div>
+                                <div>Podstawowe informacje</div>
                             </Box>
-                            <div>Total Predicted: {powerUsage.total_power.toFixed(2)}</div>
-                            <div>Total Used: {props.usage!.toFixed(2)}</div>
+                            <div>Przewidywane zużycie: {powerUsage.total_power.toFixed(2)} kWh</div>
+                            <div>Rzeczywiste zużycie: {props.usage!.toFixed(2)} kWh</div>
                         </Box>
                     </Grid>
                 </Fade>
@@ -168,11 +168,11 @@ const Report = () => {
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Index</TableCell>
-                                        <TableCell>Night Start</TableCell>
-                                        <TableCell>Night End</TableCell>
-                                        <TableCell>Real Usage</TableCell>
-                                        <TableCell>Predicted Usage</TableCell>
+                                        <TableCell>Id</TableCell>
+                                        <TableCell>Rozpoczęcie nocy</TableCell>
+                                        <TableCell>Zakończenie nocy</TableCell>
+                                        <TableCell>Rzeczywiste zużycie [kWh]</TableCell>
+                                        <TableCell>Przewidywane zużycie [kWh]</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>

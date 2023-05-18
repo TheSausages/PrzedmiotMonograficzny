@@ -282,7 +282,7 @@ const Measurement = (props: MeasurementProps) => {
                         <TextField
                             id="singleLampPower"
                             name='singleLampPower'
-                            label="Moc pojednyńczej lampy"
+                            label="Moc pojedyńczej lampy [W]"
                             variant="outlined"
                             type="number"
                             InputLabelProps={{ shrink: true }}
@@ -294,7 +294,7 @@ const Measurement = (props: MeasurementProps) => {
                         <TextField
                             id="observedPowerUsage"
                             name='observedPowerUsage'
-                            label="Zaobserwowane rzeczywiste zużycie danych w danym okresie"
+                            label="Zaobserwowane rzeczywiste zużycie w danym okresie [kWh]"
                             variant="outlined"
                             type="number"
                             InputLabelProps={{ shrink: true }}
